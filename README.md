@@ -20,6 +20,12 @@ Then open: **http://localhost:6080**
 
 - **Docker + Docker Compose**
 
+## Why? For what purpose this project was created?
+
+1. Because I can
+2. I wanted to learn how to create docker image with VNC
+3. Had crazy idea to play Nostale in browser
+
 ## License
 
 MIT
