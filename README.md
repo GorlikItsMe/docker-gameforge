@@ -2,6 +2,10 @@
 
 Run Gameforge Client in Docker using Wine with browser-based VNC access.
 
+```bash
+docker pull ghcr.io/gorlikitsme/docker-gameforge:v0.1
+```
+
 ## Quick Start
 
 ```bash
@@ -29,3 +33,6 @@ Then open: **http://localhost:6080**
 ## License
 
 MIT
+
+---
+**Disclaimer**: This project is not affiliated with Gameforge. Names and trademarks are the property of their respective owners.
