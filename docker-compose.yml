@@ -1,0 +1,23 @@
+
+services:
+  gameforge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: docker-gameforge:latest
+    container_name: docker-gameforge
+    ports:
+      - "6080:6080"  # noVNC
+      - "5901:5901"  # VNC direct
+    volumes:
+      - ./logs:/app/logs
+      - wine-data:/root/.wine32
+    environment:
+      - VNC_SERVER=yes
+      - DISPLAY=:1
+    command: sleep infinity
+    stdin_open: true
+    tty: true
+
+volumes:
+  wine-data:
