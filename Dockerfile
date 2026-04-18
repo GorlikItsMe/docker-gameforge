@@ -1,7 +1,7 @@
 # Remote desktop (Webtop / Selkies) + umu-launcher + Gameforge autostart helpers
 FROM lscr.io/linuxserver/webtop:debian-xfce
 
-ENV TITLE="Remote desktop"
+ENV TITLE="Gameforge Client"
 
 USER root
 
