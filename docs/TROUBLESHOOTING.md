@@ -27,7 +27,7 @@ The image pre-accepts the MS Core Fonts EULA and installs **`ttf-mscorefonts-ins
 
 The image installs **`wine`**, **`wine32`**, and **`winetricks`**. **Do not** run winetricks against a Proton prefix with **`/usr/bin/wine`** — that mixes Wine builds. Here, **`gameforge-autostart.sh`** and **`run-winetricks.sh`** set **`WINE`** to **Proton’s `files/bin/wine`** (resolved by **`resolve-proton-wine.sh`**: **`PROTONPATH`** if set — absolute or resolvable relative to cwd / **`$HOME`** — else newest **`*/files/bin/wine`** under **`~/.local/share/umu`**, and only if none there, under **`~/.local/share/Steam/compatibilitytools.d`**). Symlink **`wine`** entries are included. **`PROTONPATH`** wins over **`GAMEFORGE_PROTONPATH`** when both are set. If Proton is not on disk yet, corefonts is skipped until the prefix exists; on a clean install that is **after** the first **`umu-run`** (see stamp / second **`maybe_winetricks`** pass in **`gameforge-autostart.sh`**).
 
-**`gameforge-autostart.sh`** runs **`winetricks -q corefonts`** **once** after the Wine prefix exists (needs network the first time), then creates **`GAMEFORGE_DIR/.winetricks-corefonts.done`**. On a **clean** volume it **skips** winetricks until **`umu-run`** has created **`system.reg`**, so the prefix stays **64-bit (WoW64)**; the second pass (after the installer) installs fonts. Scripts export **`WINEARCH=win64`**. To skip corefonts: **`WINETRICKS_COREFONTS=false`**. To retry: delete that stamp file.
+**`gameforge-autostart.sh`** runs **`winetricks -q corefonts`** **once** after the Wine prefix exists (needs network the first time), then creates **`GAMEFORGE_DIR/.winetricks-corefonts.done`**. On a **clean** volume it **skips** winetricks until **`umu-run`** has created **`system.reg`**, so the prefix stays **64-bit (WoW64)**; the second pass (after the installer) installs fonts. Scripts export **`WINEARCH=win64`**. To skip corefonts: **`WINETRICKS_COREFONTS=false`** (see [docker-compose.yml](../docker-compose.yml)). To retry: delete that stamp file.
 
 Manual runs: **`/usr/local/bin/run-winetricks.sh`** (same **`WINEPREFIX`** / **`WINEARCH`** / **`GAMEID`** / **`STORE`** / **`PROTONPATH`** as **`umu-run`**; override prefix with **`GAMEFORGE_WINEPREFIX`**, optional **`GAMEFORGE_PROTONPATH`**), e.g. **`run-winetricks.sh --gui`**.
 
@@ -139,7 +139,7 @@ Use your real paths if you overrode **`GAMEFORGE_WINEPREFIX`** / **`GAMEFORGE_DI
 | `GAMEFORGE_WINEPREFIX` | Wine prefix path (default `/config/wine-gameforge`). |
 | `GAMEFORGE_DIR` | Cached installer + stamps (default `/config/gameforge`). |
 | `GAMEFORGE_CLIENT_EXE_RELPATH` | Path to client exe inside prefix. |
-| `WINETRICKS_COREFONTS` | `false` to skip one-time corefonts. |
+| `WINETRICKS_COREFONTS` | `false` to skip one-time corefonts (default enabled when unset). |
 | `PROTON_USE_WINED3D` | `1` for OpenGL installer in headless-ish setups (default **Dockerfile**). |
 | `GAMEFORGE_CEF_CHROME_FLAGS` | `0` to disable extra Chromium flags for gfclient. |
 | `GAMEFORGE_CLIENT_LOG` | Override client log path. |

@@ -27,7 +27,7 @@ services:
       # - GAMEFORGE_DIR=/config/gameforge
       # - GAMEFORGE_CLIENT_EXE_RELPATH=drive_c/Program Files (x86)/GameforgeClient/gfclient.exe
       # - GAMEFORGE_TZ=Europe/Warsaw  (optional; overrides TZ for Gameforge scripts only)
-      # - GAMEFORGE_WINETRICKS_COREFONTS=false  (skip one-time winetricks -q corefonts in gameforge-autostart.sh)
+      # - WINETRICKS_COREFONTS=false  (skip one-time winetricks -q corefonts in gameforge-autostart.sh)
       # OpenGL instead of DXVK — fixes "VK_KHR_surface not supported" in Webtop/Xvfb (set 0 if you need DXVK + GPU)
       - PROTON_USE_WINED3D=1
       # CEF/Chromium flags for gfclient (same idea as /etc/chromium.d/gameforge-webgl); set GAMEFORGE_CEF_CHROME_FLAGS=0 to disable

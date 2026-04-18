@@ -28,25 +28,55 @@ export TZ="${TZ:-Europe/Warsaw}"
 CLIENT_REL="${GAMEFORGE_CLIENT_EXE_RELPATH:-drive_c/Program Files (x86)/GameforgeClient/gfclient.exe}"
 CLIENT_EXE="$WINEPREFIX/$CLIENT_REL"
 
+find_client() {
+  [ -d "$WINEPREFIX/drive_c" ] || return 1
+  find "$WINEPREFIX/drive_c" -type f \( \
+    -iname 'GameforgeClient.exe' -o \
+    -iname 'gfclient*.exe' -o \
+    -iname '*Gameforge*Launcher*.exe' \
+  \) 2>/dev/null | LC_ALL=C sort | head -1
+}
+
+# Prefer the configured default path; fall back to a search under drive_c.
+client_path=""
+if [ -f "$CLIENT_EXE" ]; then
+  client_path="$CLIENT_EXE"
+else
+  c="$(find_client)" || true
+  if [ -n "$c" ] && [ -f "$c" ]; then
+    client_path="$c"
+  fi
+fi
+
+# .desktop Exec= uses XDG escape sequences for spaces in paths (\s, \\).
+desktop_exec_escape_path() {
+  printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/ /\\s/g'
+}
+
 # Visible launcher on the desktop (Webtop home is /config). /etc/xdg/autostart entries are session-only, not icons.
+# Optional first argument: absolute path to client .exe (when discovered outside CLIENT_REL).
 update_gameforge_desktop_shortcut() {
+  local exe="${1:-}"
+  [ -n "$exe" ] || exe="$CLIENT_EXE"
+  [ -f "$exe" ] || return 0
   local desk=/config/Desktop
   local shortcut="$desk/Gameforge Client.desktop"
-  [ -f "$CLIENT_EXE" ] || return 0
   mkdir -p "$desk" 2>/dev/null || return 0
   umask 022
-  cat >"$shortcut" << 'EOF'
-[Desktop Entry]
-Version=1.0
-Type=Application
-Name=Gameforge Client
-Comment=Gameforge client (umu-run)
-Exec=/usr/local/bin/run-gameforge-client.sh
-Icon=applications-games
-Terminal=false
-Categories=Game;
-StartupNotify=true
-EOF
+  local escaped
+  escaped="$(desktop_exec_escape_path "$exe")"
+  {
+    printf '%s\n' '[Desktop Entry]'
+    printf '%s\n' 'Version=1.0'
+    printf '%s\n' 'Type=Application'
+    printf '%s\n' 'Name=Gameforge Client'
+    printf '%s\n' 'Comment=Gameforge client (umu-run)'
+    printf '%s\n' "Exec=/usr/local/bin/run-gameforge-client.sh ${escaped}"
+    printf '%s\n' 'Icon=applications-games'
+    printf '%s\n' 'Terminal=false'
+    printf '%s\n' 'Categories=Game;'
+    printf '%s\n' 'StartupNotify=true'
+  } >"$shortcut"
   chmod 644 "$shortcut"
 }
 
@@ -77,7 +107,7 @@ maybe_open_autostart_console() {
   if command -v xfce4-terminal >/dev/null 2>&1; then
     xfce4-terminal --title="Gameforge autostart log" -x bash -c "tail -n 80 -f \"$LOG\"" &
   elif command -v x-terminal-emulator >/dev/null 2>&1; then
-    x-terminal-emulator -e "tail -n 80 -f $LOG" &
+    x-terminal-emulator -e "tail -n 80 -f \"$LOG\"" &
   else
     return 0
   fi
@@ -86,7 +116,7 @@ maybe_open_autostart_console() {
 }
 
 mkdir -p "$GAMEFORGE_DIR" /config/Desktop 2>/dev/null || true
-update_gameforge_desktop_shortcut
+update_gameforge_desktop_shortcut "$client_path"
 update_wine_explorer_desktop_shortcut
 maybe_open_autostart_console
 {
@@ -120,7 +150,8 @@ fi
 sleep 8
 
 # One-shot MS core fonts via winetricks using Proton's wine (same as umu-run), not /usr/bin/wine.
-# Stamped under GAMEFORGE_DIR. First session may skip if Proton not extracted yet — runs again after installer. Disable: WINETRICKS_COREFONTS=false
+# Stamped under GAMEFORGE_DIR. First session may skip if Proton not extracted yet — runs again after installer.
+# Disable: WINETRICKS_COREFONTS=false
 maybe_winetricks_corefonts() {
   [ "${WINETRICKS_COREFONTS:-true}" = "true" ] || return 0
   command -v winetricks >/dev/null 2>&1 || return 0
@@ -149,29 +180,9 @@ maybe_winetricks_corefonts() {
 
 maybe_winetricks_corefonts
 
-find_client() {
-  [ -d "$WINEPREFIX/drive_c" ] || return 1
-  find "$WINEPREFIX/drive_c" -type f \( \
-    -iname 'GameforgeClient.exe' -o \
-    -iname 'gfclient*.exe' -o \
-    -iname '*Gameforge*Launcher*.exe' \
-  \) 2>/dev/null | LC_ALL=C sort | head -1
-}
-
-# Prefer the configured default path; fall back to a search under drive_c.
-client_path=""
-if [ -f "$CLIENT_EXE" ]; then
-  client_path="$CLIENT_EXE"
-else
-  c="$(find_client)" || true
-  if [ -n "$c" ] && [ -f "$c" ]; then
-    client_path="$c"
-  fi
-fi
-
 if [ -n "$client_path" ]; then
   echo "skip install: launching client ($client_path)" >>"$LOG" 2>/dev/null || true
-  update_gameforge_desktop_shortcut
+  update_gameforge_desktop_shortcut "$client_path"
   LD_PRELOAD= /usr/local/bin/run-gameforge-client.sh "$client_path" >>"$LOG" 2>&1 &
   disown 2>/dev/null || true
   exit 0
@@ -200,8 +211,9 @@ echo "running: PROTON_USE_WINED3D=$PROTON_USE_WINED3D umu-run $INSTALLER" >>"$LO
 # Selkies injects 64-bit LD_PRELOAD shims; 32-bit Wine PE helpers (e.g. gfservice.exe) log ELFCLASS noise.
 LD_PRELOAD= umu-run "$INSTALLER" >>"$LOG" 2>&1 || echo "umu-run exited $?" >>"$LOG" 2>/dev/null || true
 
-if client="$(find_client)" && [ -n "$client" ]; then
+if client="$(find_client)" && [ -n "$client" ] && [ -f "$client" ]; then
   echo "after run: detected client ($client)" >>"$LOG" 2>/dev/null || true
+  update_gameforge_desktop_shortcut "$client"
 else
   echo "after run: no client exe matched yet (complete the wizard or check log)" >>"$LOG" 2>/dev/null || true
 fi
