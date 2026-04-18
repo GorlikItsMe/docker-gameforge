@@ -1,4 +1,18 @@
+# Linux-first repo (Docker / shell). Normalize text to LF in the repo and on checkout
+# so Windows editors do not introduce CRLF into scripts consumed in the image.
+
+* text=auto eol=lf
+
+# Explicit (redundant but documents intent)
 *.sh text eol=lf
-root/usr/local/bin/*.sh text eol=lf
-root/**/*.desktop text eol=lf
+Dockerfile text eol=lf
+.dockerignore text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+*.desktop text eol=lf
+.gitattributes text eol=lf
+.gitignore text eol=lf
+
+# Chromium drop-ins (no extension)
 root/etc/chromium.d/* text eol=lf
