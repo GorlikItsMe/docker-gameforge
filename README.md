@@ -52,7 +52,7 @@ To start the client yourself: **`/usr/local/bin/run-gameforge-client.sh`** (same
 XFCE loads **`/etc/xdg/autostart/gameforge-autostart.desktop`**, which runs **`/usr/local/bin/gameforge-autostart.sh`**. On each session start it:
 
 1. Skips if **`GAMEFORGE_AUTOSTART`** is not `true` (see [docker-compose.yml](docker-compose.yml)).
-2. Skips if it already finds a plausible Gameforge client **`.exe`** under **`GAMEFORGE_WINEPREFIX`** (default **`/config/wine-gameforge`**).
+2. If **`gfclient.exe`** (or another known client name) already exists under the Wine prefix — starts **`run-gameforge-client.sh`** in the background instead of the installer.
 3. Otherwise downloads **`GameforgeInstaller.exe`** (default URL from compose; override with **`GAMEFORGE_DOWNLOAD_URL`**) into **`GAMEFORGE_DIR`** (default **`/config/gameforge`**) and runs **`umu-run`** on it.
 
 **`DISPLAY`** is taken from the session or the first **`/tmp/.X11-unix`** socket (Webtop often uses **`:1`**). A trace is appended to **`/config/Desktop/gameforge-autostart.log`**.

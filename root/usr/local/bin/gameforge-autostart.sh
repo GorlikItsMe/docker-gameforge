@@ -1,6 +1,7 @@
 #!/bin/bash
-# XFCE autostart: cache GameforgeInstaller.exe under /config and run it once via umu-run
-# until a client executable appears in the Wine prefix. Disable: GAMEFORGE_AUTOSTART=false.
+# XFCE autostart: if gfclient (or another known client exe) is already installed, launch it;
+# otherwise cache GameforgeInstaller.exe under /config and run the installer via umu-run.
+# Disable: GAMEFORGE_AUTOSTART=false.
 
 LOG=/config/Desktop/gameforge-autostart.log
 GAMEFORGE_DIR="${GAMEFORGE_DIR:-/config/gameforge}"
@@ -85,8 +86,22 @@ find_client() {
   \) 2>/dev/null | head -1
 }
 
-if client="$(find_client)" && [ -n "$client" ] && [ -f "$client" ]; then
-  echo "skip install: client already present ($client)" >>"$LOG" 2>/dev/null || true
+# Prefer the configured default path; fall back to a search under drive_c.
+client_path=""
+if [ -f "$CLIENT_EXE" ]; then
+  client_path="$CLIENT_EXE"
+else
+  c="$(find_client)" || true
+  if [ -n "$c" ] && [ -f "$c" ]; then
+    client_path="$c"
+  fi
+fi
+
+if [ -n "$client_path" ]; then
+  echo "skip install: launching client ($client_path)" >>"$LOG" 2>/dev/null || true
+  update_gameforge_desktop_shortcut
+  LD_PRELOAD= /usr/local/bin/run-gameforge-client.sh "$client_path" >>"$LOG" 2>&1 &
+  disown 2>/dev/null || true
   exit 0
 fi
 

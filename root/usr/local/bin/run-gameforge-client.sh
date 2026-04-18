@@ -1,5 +1,6 @@
 #!/bin/bash
 # Launch installed Gameforge client via umu-run (double-click from Desktop or run in terminal).
+# Optional first argument: absolute path to the client .exe (when discovered outside the default CLIENT_REL).
 
 WINEPREFIX="${GAMEFORGE_WINEPREFIX:-/config/wine-gameforge}"
 CLIENT_REL="${GAMEFORGE_CLIENT_EXE_RELPATH:-drive_c/Program Files (x86)/GameforgeClient/gfclient.exe}"
@@ -25,7 +26,14 @@ if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ] && [ -S "${XDG_RUNTIME_DIR:-/run/user/
   export DBUS_SESSION_BUS_ADDRESS="unix:path=${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/bus"
 fi
 
-exe="$WINEPREFIX/$CLIENT_REL"
+exe=""
+if [ -n "${1:-}" ] && [ -f "$1" ]; then
+  exe="$1"
+  shift
+fi
+if [ -z "$exe" ]; then
+  exe="$WINEPREFIX/$CLIENT_REL"
+fi
 if [ ! -f "$exe" ]; then
   msg="Gameforge Client not found at:\n$exe"
   command -v zenity >/dev/null 2>&1 && zenity --error --no-wrap --text="$msg" 2>/dev/null
