@@ -1,0 +1,4 @@
+# docker-gameforge: Chromium in Docker / Webtop (dash sources this file).
+# llvmpipe (software GL) is blocklisted for WebGL by default; --ignore-gpu-blocklist allows it (CPU-heavy).
+CHROMIUM_FLAGS="${CHROMIUM_FLAGS:-}"
+CHROMIUM_FLAGS="$CHROMIUM_FLAGS --disable-gpu-sandbox --disable-dev-shm-usage --ignore-gpu-blocklist"

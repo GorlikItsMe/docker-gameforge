@@ -30,4 +30,26 @@ if [ ! -f "$exe" ]; then
   exit 1
 fi
 
-exec env LD_PRELOAD= umu-run "$exe" "$@"
+# CEF uses Chromium; mirror /etc/chromium.d/gameforge-webgl so the in-app browser/WebGL
+# sees the same baseline as system Chromium (Docker + llvmpipe). Set GAMEFORGE_CEF_CHROME_FLAGS=0 to skip.
+cef_args=()
+if [ "${GAMEFORGE_CEF_CHROME_FLAGS:-1}" != "0" ]; then
+  cef_args+=(--disable-gpu-sandbox --disable-dev-shm-usage --ignore-gpu-blocklist)
+fi
+
+LOG="${GAMEFORGE_CLIENT_LOG:-/config/Desktop/gameforge-client.log}"
+mkdir -p "$(dirname "$LOG")" 2>/dev/null || true
+{
+  echo "=== $(date -Iseconds) Gameforge Client start ==="
+  echo "DISPLAY=$DISPLAY WINEPREFIX=$WINEPREFIX"
+  echo "exe=$exe"
+  printf 'cef_args=%q ' "${cef_args[@]}"; echo
+  echo "extra_args=$*"
+} >>"$LOG"
+
+if [ -t 1 ]; then
+  env LD_PRELOAD= umu-run "$exe" "${cef_args[@]}" "$@" 2>&1 | tee -a "$LOG"
+  exit "${PIPESTATUS[0]}"
+fi
+
+exec env LD_PRELOAD= umu-run "$exe" "${cef_args[@]}" "$@" >>"$LOG" 2>&1
