@@ -98,6 +98,23 @@ fi
 
 sleep 8
 
+# One-shot MS core fonts for Wine (Arial etc.); stamped under GAMEFORGE_DIR. Needs network first run. Disable: GAMEFORGE_WINETRICKS_COREFONTS=false
+maybe_winetricks_corefonts() {
+  [ "${GAMEFORGE_WINETRICKS_COREFONTS:-true}" = "true" ] || return 0
+  command -v winetricks >/dev/null 2>&1 || return 0
+  local stamp="$GAMEFORGE_DIR/.winetricks-corefonts.done"
+  [ -f "$stamp" ] && return 0
+  echo "winetricks -q corefonts (one-time; see $stamp)" >>"$LOG" 2>/dev/null || true
+  if winetricks -q corefonts >>"$LOG" 2>&1; then
+    touch "$stamp"
+    echo "winetricks corefonts finished" >>"$LOG" 2>/dev/null || true
+  else
+    echo "winetricks corefonts failed; will retry next login" >>"$LOG" 2>/dev/null || true
+  fi
+}
+
+maybe_winetricks_corefonts
+
 find_client() {
   [ -d "$WINEPREFIX/drive_c" ] || return 1
   find "$WINEPREFIX/drive_c" -type f \( \

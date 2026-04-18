@@ -2,7 +2,15 @@
 
 **Remote Linux desktop** in a browser via [LinuxServer Webtop](https://docs.linuxserver.io/images/docker-webtop/) (`debian-xfce`, **Selkies** / HTTPS UI), plus **[umu-launcher](https://github.com/Open-Wine-Components/umu-launcher)** from the official GitHub **Debian 13** packages (`umu-launcher` + `python3-umu-launcher`, provides **`umu-run`**). The image enables **i386** and installs the 32-bit Mesa libraries those packages require (`libgl1-mesa-dri:i386`, `libglx-mesa0:i386`).
 
-**Fonts:** the image pre-accepts the MS Core Fonts EULA and installs **`ttf-mscorefonts-installer`** (Arial, Times New Roman, Courier, etc.), plus metric-compatible **`fonts-croscore`** and **`fonts-liberation`**. They are registered in **fontconfig**; **Wine/Proton** and **Chromium** typically pick them up so CEF/launcher UIs look closer to a normal Windows/desktop setup.
+**Fonts:** the image pre-accepts the MS Core Fonts EULA and installs **`ttf-mscorefonts-installer`** (Arial, Times New Roman, Courier, etc.), plus metric-compatible **`fonts-croscore`** and **`fonts-liberation`**, and **`fonts-noto-color-emoji`** for color emoji where **fontconfig**/apps pick it up. **Wine** UIs may still use prefix fonts for emoji.
+
+### Winetricks (Wine prefix)
+
+The image installs **`wine`** and **`winetricks`**. **`gameforge-autostart.sh`** runs **`winetricks -q corefonts`** **once** (needs network the first time), then creates **`GAMEFORGE_DIR/.winetricks-corefonts.done`** (default **`/config/gameforge/.winetricks-corefonts.done`**). To skip: **`GAMEFORGE_WINETRICKS_COREFONTS=false`**. To retry: delete that stamp file.
+
+Manual runs: **`/usr/local/bin/run-winetricks.sh`** (same **`WINEPREFIX`** defaults; override with **`GAMEFORGE_WINEPREFIX`**), e.g. **`run-winetricks.sh --gui`**.
+
+**Winetricks** does not ship a verb for **Segoe UI Emoji**; **`corefonts`** covers the usual MS web fonts (Arial, Times, Courier, …) inside the prefix. Color emoji on the **Linux** desktop still comes from **`fonts-noto-color-emoji`**. If a **Wine** app still shows emoji boxes, it is usually asking for a Windows emoji font — that is outside what **`corefonts`** provides.
 
 ## Run
 
@@ -52,8 +60,9 @@ To start the client yourself: **`/usr/local/bin/run-gameforge-client.sh`** (same
 XFCE loads **`/etc/xdg/autostart/gameforge-autostart.desktop`**, which runs **`/usr/local/bin/gameforge-autostart.sh`**. On each session start it:
 
 1. Skips if **`GAMEFORGE_AUTOSTART`** is not `true` (see [docker-compose.yml](docker-compose.yml)).
-2. If **`gfclient.exe`** (or another known client name) already exists under the Wine prefix — starts **`run-gameforge-client.sh`** in the background instead of the installer.
-3. Otherwise downloads **`GameforgeInstaller.exe`** (default URL from compose; override with **`GAMEFORGE_DOWNLOAD_URL`**) into **`GAMEFORGE_DIR`** (default **`/config/gameforge`**) and runs **`umu-run`** on it.
+2. Runs **`winetricks -q corefonts`** once until **`GAMEFORGE_DIR/.winetricks-corefonts.done`** exists (unless **`GAMEFORGE_WINETRICKS_COREFONTS=false`**). See **Winetricks** above.
+3. If **`gfclient.exe`** (or another known client name) already exists under the Wine prefix — starts **`run-gameforge-client.sh`** in the background instead of the installer.
+4. Otherwise downloads **`GameforgeInstaller.exe`** (default URL from compose; override with **`GAMEFORGE_DOWNLOAD_URL`**) into **`GAMEFORGE_DIR`** (default **`/config/gameforge`**) and runs **`umu-run`** on it.
 
 **`DISPLAY`** is taken from the session or the first **`/tmp/.X11-unix`** socket (Webtop often uses **`:1`**). A trace is appended to **`/config/Desktop/gameforge-autostart.log`**.
 
