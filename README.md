@@ -88,7 +88,11 @@ See [umu-launcher](https://github.com/Open-Wine-Components/umu-launcher) for **`
 
 If **`apparmor:unconfined`** is not supported on your host (rare), remove that line from compose or override it in a local override file.
 
-**Still failing:** ensure user namespaces are allowed (`kernel.unprivileged_userns_clone=1` on Linux where your distro documents it). On **SELinux-enforcing** hosts you may need **`security_opt: label:disable`** for the service (narrower than disabling SELinux globally). **Kubernetes** or other restricted runtimes may require a custom seccomp/AppArmor profile or, as a last resort, **`privileged: true`** for this workload only.
+3. **`userns_mode: "host"`** — If you see *“bwrap: **setting up uid map: Permission denied**”*, the Docker daemon is often running containers inside a **remapped user namespace** (`userns-remap` / rootless). **pressure-vessel** then cannot set up a second uid map for **bubblewrap**. Opting this service into the **host** user namespace fixes that. On a daemon **without** remap, Docker ignores this option.
+
+**Check on the server:** `docker info` and look for **User Namespace** / **userns** / **rootless** hints; see also `/etc/docker/daemon.json` for `"userns-remap"`.
+
+**Still failing after the above:** ensure `kernel.unprivileged_userns_clone=1` where applicable. On **SELinux-enforcing** hosts try **`security_opt: label:disable`**. **Kubernetes** or hardened hosts may need **`cap_add: [SYS_ADMIN]`** or, last resort, **`privileged: true`** for this workload only.
 
 ## Compose
 

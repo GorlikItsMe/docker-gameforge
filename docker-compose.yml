@@ -50,6 +50,11 @@ services:
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined
+    # Nested bwrap (pressure-vessel) must create its own uid map. If the Docker daemon
+    # uses user-namespace remapping, inner bwrap often fails with:
+    #   "bwrap: setting up uid map: Permission denied"
+    # userns_mode: host runs this service in the host user namespace (no effect if remap is off).
+    userns_mode: "host"
     shm_size: "1gb"
 
 volumes:
