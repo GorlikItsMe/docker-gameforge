@@ -6,6 +6,7 @@ WINEPREFIX="${GAMEFORGE_WINEPREFIX:-/config/wine-gameforge}"
 CLIENT_REL="${GAMEFORGE_CLIENT_EXE_RELPATH:-drive_c/Program Files (x86)/GameforgeClient/gfclient.exe}"
 
 export WINEPREFIX
+export WINEARCH="${WINEARCH:-win64}"
 export GAMEID="${GAMEFORGE_GAMEID:-umu-default}"
 export STORE="${GAMEFORGE_STORE:-none}"
 export PROTONPATH="${PROTONPATH:-${GAMEFORGE_PROTONPATH:-}}"

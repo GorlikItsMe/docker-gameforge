@@ -6,13 +6,22 @@
 
 ### Winetricks (Wine prefix)
 
-The image installs **`wine`**, **`wine32`**, and **`winetricks`**. **Do not** run winetricks against a Proton prefix with **`/usr/bin/wine`** — that mixes Wine builds. Here, **`gameforge-autostart.sh`** and **`run-winetricks.sh`** set **`WINE`** to **Proton’s `files/bin/wine`** (resolved by **`resolve-proton-wine.sh`**: **`PROTONPATH`** if set — absolute or resolvable relative to cwd / **`$HOME`** — else newest **`*/files/bin/wine`** under **`~/.local/share/umu`**, and only if none there, under **`~/.local/share/Steam/compatibilitytools.d`**). Symlink **`wine`** entries are included. **`PROTONPATH`** wins over **`GAMEFORGE_PROTONPATH`** when both are set. If Proton is not on disk yet, corefonts is skipped until the next session (or the second pass in autostart after **`umu-run`** on the installer).
+The image installs **`wine`**, **`wine32`**, and **`winetricks`**. **Do not** run winetricks against a Proton prefix with **`/usr/bin/wine`** — that mixes Wine builds. Here, **`gameforge-autostart.sh`** and **`run-winetricks.sh`** set **`WINE`** to **Proton’s `files/bin/wine`** (resolved by **`resolve-proton-wine.sh`**: **`PROTONPATH`** if set — absolute or resolvable relative to cwd / **`$HOME`** — else newest **`*/files/bin/wine`** under **`~/.local/share/umu`**, and only if none there, under **`~/.local/share/Steam/compatibilitytools.d`**). Symlink **`wine`** entries are included. **`PROTONPATH`** wins over **`GAMEFORGE_PROTONPATH`** when both are set. If Proton is not on disk yet, corefonts is skipped until the prefix exists; on a clean install that is **after** the first **`umu-run`** (see stamp / second **`maybe_winetricks`** pass in **`gameforge-autostart.sh`**).
 
-**`gameforge-autostart.sh`** runs **`winetricks -q corefonts`** **once** (needs network the first time), then creates **`GAMEFORGE_DIR/.winetricks-corefonts.done`**. To skip: **`GAMEFORGE_WINETRICKS_COREFONTS=false`**. To retry: delete that stamp file.
+**`gameforge-autostart.sh`** runs **`winetricks -q corefonts`** **once** after the Wine prefix exists (needs network the first time), then creates **`GAMEFORGE_DIR/.winetricks-corefonts.done`**. On a **clean** volume it **skips** winetricks until **`umu-run`** has created **`system.reg`**, so the prefix stays **64-bit (WoW64)**; the second pass (after the installer) installs fonts. Scripts export **`WINEARCH=win64`**. To skip corefonts: **`GAMEFORGE_WINETRICKS_COREFONTS=false`**. To retry: delete that stamp file.
 
-Manual runs: **`/usr/local/bin/run-winetricks.sh`** (same **`WINEPREFIX`** / **`GAMEID`** / **`STORE`** / **`PROTONPATH`** as **`umu-run`**; override prefix with **`GAMEFORGE_WINEPREFIX`**, optional **`GAMEFORGE_PROTONPATH`**), e.g. **`run-winetricks.sh --gui`**.
+Manual runs: **`/usr/local/bin/run-winetricks.sh`** (same **`WINEPREFIX`** / **`WINEARCH`** / **`GAMEID`** / **`STORE`** / **`PROTONPATH`** as **`umu-run`**; override prefix with **`GAMEFORGE_WINEPREFIX`**, optional **`GAMEFORGE_PROTONPATH`**), e.g. **`run-winetricks.sh --gui`**.
 
 **Winetricks** does not ship a verb for **Segoe UI Emoji**; **`corefonts`** covers the usual MS web fonts (Arial, Times, Courier, …) inside the prefix. Color emoji on the **Linux** desktop still comes from **`fonts-noto-color-emoji`**. If a **Wine** app still shows emoji boxes, it is usually asking for a Windows emoji font — that is outside what **`corefonts`** provides.
+
+**Wine error:** *“`…` is a 32-bit installation, it cannot support 64-bit applications”* — the prefix was created as **32-bit-only** (e.g. older image ran **winetricks** before **Proton** initialized the bottle). **Remove the prefix and the corefonts stamp**, then rebuild/restart with a current image (inside the desktop or via `docker exec`):
+
+```bash
+rm -rf /config/wine-gameforge
+rm -f /config/gameforge/.winetricks-corefonts.done
+```
+
+Use your real paths if you overrode **`GAMEFORGE_WINEPREFIX`** / **`GAMEFORGE_DIR`**.
 
 ## Run
 

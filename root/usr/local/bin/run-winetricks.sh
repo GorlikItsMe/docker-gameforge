@@ -6,6 +6,7 @@
 
 WINEPREFIX="${GAMEFORGE_WINEPREFIX:-/config/wine-gameforge}"
 export WINEPREFIX
+export WINEARCH="${WINEARCH:-win64}"
 
 # Inherit GAMEID / STORE / PROTONPATH from the environment so resolution matches umu-run (compose).
 export GAMEID="${GAMEFORGE_GAMEID:-${GAMEID:-umu-default}}"

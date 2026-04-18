@@ -10,6 +10,8 @@ DOWNLOAD_URL="${GAMEFORGE_DOWNLOAD_URL:-https://install.gameforge.com/download?d
 WINEPREFIX="${GAMEFORGE_WINEPREFIX:-/config/wine-gameforge}"
 
 export WINEPREFIX
+# Proton/Gameforge need a 64-bit (WoW64) prefix; winetricks before first umu-run could initialize 32-bit-only.
+export WINEARCH="${WINEARCH:-win64}"
 export GAMEID="${GAMEFORGE_GAMEID:-umu-default}"
 export STORE="${GAMEFORGE_STORE:-none}"
 # umu-run uses PROTONPATH; prefer an explicit PROTONPATH over GAMEFORGE_PROTONPATH when both are set.
@@ -105,6 +107,12 @@ sleep 8
 maybe_winetricks_corefonts() {
   [ "${GAMEFORGE_WINETRICKS_COREFONTS:-true}" = "true" ] || return 0
   command -v winetricks >/dev/null 2>&1 || return 0
+  # Do not run winetricks on an empty prefix: first Wine process was 32-bit helpers → prefix stays 32-bit-only
+  # and umu-run then fails with "cannot support 64-bit applications". Defer until Proton created system.reg.
+  if [ ! -f "$WINEPREFIX/system.reg" ]; then
+    echo "winetricks corefonts: skipping until Wine prefix exists (avoid 32-bit-only bottle)" >>"$LOG" 2>/dev/null || true
+    return 0
+  fi
   local stamp="$GAMEFORGE_DIR/.winetricks-corefonts.done"
   [ -f "$stamp" ] && return 0
   local proton_wine
@@ -114,7 +122,7 @@ maybe_winetricks_corefonts() {
   }
   echo "winetricks -q corefonts WINE=$proton_wine (one-time; see $stamp)" >>"$LOG" 2>/dev/null || true
   # Clear Selkies 64-bit LD_PRELOAD so 32-bit wine/regedit from winetricks does not spam ELFCLASS64.
-  if ( export WINE="$proton_wine"; export LD_PRELOAD=; winetricks -q corefonts >>"$LOG" 2>&1 ); then
+  if ( export WINE="$proton_wine"; export WINEARCH="${WINEARCH:-win64}"; export LD_PRELOAD=; winetricks -q corefonts >>"$LOG" 2>&1 ); then
     touch "$stamp"
     echo "winetricks corefonts finished" >>"$LOG" 2>/dev/null || true
   else

@@ -5,6 +5,7 @@ WINEPREFIX="${GAMEFORGE_WINEPREFIX:-/config/wine-gameforge}"
 EXPLORER="$WINEPREFIX/drive_c/windows/explorer.exe"
 
 export WINEPREFIX
+export WINEARCH="${WINEARCH:-win64}"
 export GAMEID="${GAMEFORGE_GAMEID:-umu-default}"
 export STORE="${GAMEFORGE_STORE:-none}"
 export PROTONPATH="${PROTONPATH:-${GAMEFORGE_PROTONPATH:-}}"
