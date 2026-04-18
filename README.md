@@ -6,7 +6,7 @@
 
 ### Winetricks (Wine prefix)
 
-The image installs **`wine`** and **`winetricks`**. **`gameforge-autostart.sh`** runs **`winetricks -q corefonts`** **once** (needs network the first time), then creates **`GAMEFORGE_DIR/.winetricks-corefonts.done`** (default **`/config/gameforge/.winetricks-corefonts.done`**). To skip: **`GAMEFORGE_WINETRICKS_COREFONTS=false`**. To retry: delete that stamp file.
+The image installs **`wine`**, **`wine32`** (32-bit WoW64 support — **winetricks** `corefonts` runs **`syswow64\\regedit`**), and **`winetricks`**. **`gameforge-autostart.sh`** runs **`winetricks -q corefonts`** **once** (needs network the first time), then creates **`GAMEFORGE_DIR/.winetricks-corefonts.done`** (default **`/config/gameforge/.winetricks-corefonts.done`**). To skip: **`GAMEFORGE_WINETRICKS_COREFONTS=false`**. To retry: delete that stamp file.
 
 Manual runs: **`/usr/local/bin/run-winetricks.sh`** (same **`WINEPREFIX`** defaults; override with **`GAMEFORGE_WINEPREFIX`**), e.g. **`run-winetricks.sh --gui`**.
 

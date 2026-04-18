@@ -27,6 +27,7 @@ RUN \
     mesa-vulkan-drivers \
     ttf-mscorefonts-installer \
     wine \
+    wine32 \
     winetricks \
     && \
   UMU_VER=$(curl -fsSL https://api.github.com/repos/Open-Wine-Components/umu-launcher/releases/latest \
