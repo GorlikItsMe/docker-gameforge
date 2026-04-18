@@ -9,6 +9,9 @@ export GAMEID="${GAMEFORGE_GAMEID:-umu-default}"
 export STORE="${GAMEFORGE_STORE:-none}"
 export PROTON_USE_WINED3D="${PROTON_USE_WINED3D:-1}"
 
+# IANA timezone for Wine/Proton + .NET/CEF (GAMEFORGE_TZ overrides container TZ).
+export TZ="${GAMEFORGE_TZ:-${TZ:-Europe/Warsaw}}"
+
 if [ -z "${DISPLAY:-}" ]; then
   for sock in /tmp/.X11-unix/X[0-9]*; do
     [ -S "$sock" ] || continue
@@ -41,7 +44,7 @@ LOG="${GAMEFORGE_CLIENT_LOG:-/config/Desktop/gameforge-client.log}"
 mkdir -p "$(dirname "$LOG")" 2>/dev/null || true
 {
   echo "=== $(date -Iseconds) Gameforge Client start ==="
-  echo "DISPLAY=$DISPLAY WINEPREFIX=$WINEPREFIX"
+  echo "DISPLAY=$DISPLAY TZ=$TZ WINEPREFIX=$WINEPREFIX"
   echo "exe=$exe"
   printf 'cef_args=%q ' "${cef_args[@]}"; echo
   echo "extra_args=$*"

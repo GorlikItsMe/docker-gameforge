@@ -16,6 +16,9 @@ export STORE="${GAMEFORGE_STORE:-none}"
 # "Required Vulkan extension VK_KHR_surface not supported". WineD3D (OpenGL) avoids that.
 export PROTON_USE_WINED3D="${PROTON_USE_WINED3D:-1}"
 
+# IANA timezone for Wine/Proton during install (match Gameforge client; GAMEFORGE_TZ overrides TZ).
+export TZ="${GAMEFORGE_TZ:-${TZ:-Europe/Warsaw}}"
+
 CLIENT_REL="${GAMEFORGE_CLIENT_EXE_RELPATH:-drive_c/Program Files (x86)/GameforgeClient/gfclient.exe}"
 CLIENT_EXE="$WINEPREFIX/$CLIENT_REL"
 
@@ -45,7 +48,7 @@ mkdir -p "$GAMEFORGE_DIR" /config/Desktop 2>/dev/null || true
 update_gameforge_desktop_shortcut
 {
   echo "=== $(date -Iseconds) start ==="
-  echo "GAMEFORGE_AUTOSTART=${GAMEFORGE_AUTOSTART:-} DISPLAY=${DISPLAY:-} WINEPREFIX=$WINEPREFIX"
+  echo "GAMEFORGE_AUTOSTART=${GAMEFORGE_AUTOSTART:-} DISPLAY=${DISPLAY:-} TZ=${TZ:-} WINEPREFIX=$WINEPREFIX"
 } >>"$LOG" 2>/dev/null || true
 
 if [ "${GAMEFORGE_AUTOSTART:-true}" != "true" ]; then

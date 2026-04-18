@@ -10,7 +10,14 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Etc/UTC
+      # Linux + Wine/Proton (Gameforge); override with GAMEFORGE_TZ in run scripts if needed
+      - TZ=Europe/Warsaw
+      # Lock remote desktop size (Selkies) — see README "Screen size". May snap to an even height in some builds.
+      - SELKIES_MANUAL_WIDTH=1920
+      - SELKIES_MANUAL_HEIGHT=1080
+      - MAX_RESOLUTION=1920x1080
+      # XFCE panel thickness (px); see gameforge-xfce-panel-autostart.sh
+      - GAMEFORGE_XFCE_PANEL_SIZE=47
       # Optional: download GameforgeInstaller.exe and run it with umu-run when XFCE starts
       - GAMEFORGE_AUTOSTART=true
       - "GAMEFORGE_DOWNLOAD_URL=https://install.gameforge.com/download?download_id=7ec0f5a5-21a3-41c6-8b4d-df8831ead6a8&game_id=df8661d6-a76e-417f-82dc-9fada569615e&locale=pl"
@@ -18,6 +25,7 @@ services:
       # - GAMEFORGE_WINEPREFIX=/config/wine-gameforge
       # - GAMEFORGE_DIR=/config/gameforge
       # - GAMEFORGE_CLIENT_EXE_RELPATH=drive_c/Program Files (x86)/GameforgeClient/gfclient.exe
+      # - GAMEFORGE_TZ=Europe/Warsaw  (optional; overrides TZ for Gameforge scripts only)
       # OpenGL instead of DXVK — fixes "VK_KHR_surface not supported" in Webtop/Xvfb (set 0 if you need DXVK + GPU)
       - PROTON_USE_WINED3D=1
       # CEF/Chromium flags for gfclient (same idea as /etc/chromium.d/gameforge-webgl); set GAMEFORGE_CEF_CHROME_FLAGS=0 to disable

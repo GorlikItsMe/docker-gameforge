@@ -10,9 +10,12 @@ USER root
 RUN \
   dpkg --add-architecture i386 && \
   apt-get update && \
+  echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula boolean true" | debconf-set-selections && \
   apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
+    fonts-croscore \
+    fonts-liberation \
     libegl-mesa0 \
     libgl1-mesa-dri \
     libgl1-mesa-dri:i386 \
@@ -21,6 +24,7 @@ RUN \
     libgles2 \
     libvulkan1 \
     mesa-vulkan-drivers \
+    ttf-mscorefonts-installer \
     && \
   UMU_VER=$(curl -fsSL https://api.github.com/repos/Open-Wine-Components/umu-launcher/releases/latest \
     | awk '/tag_name/{print $4;exit}' FS='[""]') && \
@@ -38,6 +42,11 @@ COPY root/ /
 RUN sed -i 's/\r$//' \
       /usr/local/bin/gameforge-autostart.sh \
       /usr/local/bin/run-gameforge-client.sh \
+      /usr/local/bin/gameforge-xfce-panel-autostart.sh \
       /etc/chromium.d/gameforge-webgl && \
-    chmod +x /usr/local/bin/gameforge-autostart.sh /usr/local/bin/run-gameforge-client.sh && \
-    chmod 644 /etc/xdg/autostart/gameforge-autostart.desktop /etc/chromium.d/gameforge-webgl
+    chmod +x /usr/local/bin/gameforge-autostart.sh \
+      /usr/local/bin/run-gameforge-client.sh \
+      /usr/local/bin/gameforge-xfce-panel-autostart.sh && \
+    chmod 644 /etc/xdg/autostart/gameforge-autostart.desktop \
+      /etc/xdg/autostart/gameforge-xfce-panel.desktop \
+      /etc/chromium.d/gameforge-webgl

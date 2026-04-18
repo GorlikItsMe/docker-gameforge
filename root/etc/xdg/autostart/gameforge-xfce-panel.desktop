@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Gameforge: XFCE panel size tune
+Comment=Optional panel thickness from GAMEFORGE_XFCE_PANEL_SIZE (see docker-compose).
+Exec=/usr/local/bin/gameforge-xfce-panel-autostart.sh
+Icon=preferences-desktop-display
+Terminal=false
+Categories=Settings;
+Hidden=false
+X-GNOME-Autostart-enabled=true
+StartupNotify=false
