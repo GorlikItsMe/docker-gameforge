@@ -47,7 +47,7 @@ Terminal=false
 Categories=Game;
 StartupNotify=true
 EOF
-  chmod 755 "$shortcut"
+  chmod 644 "$shortcut"
 }
 
 update_wine_explorer_desktop_shortcut() {
@@ -67,7 +67,7 @@ Terminal=false
 Categories=System;FileManager;
 StartupNotify=true
 EOF
-  chmod 755 "$shortcut"
+  chmod 644 "$shortcut"
 }
 
 maybe_open_autostart_console() {
