@@ -2,6 +2,8 @@
 
 **Remote Linux desktop** in a browser via [LinuxServer Webtop](https://docs.linuxserver.io/images/docker-webtop/) (`debian-xfce`, **Selkies** / HTTPS UI), plus **[umu-launcher](https://github.com/Open-Wine-Components/umu-launcher)** from the official GitHub **Debian 13** packages (`umu-launcher` + `python3-umu-launcher`, provides **`umu-run`**). The image enables **i386** and installs the 32-bit Mesa libraries those packages require (`libgl1-mesa-dri:i386`, `libglx-mesa0:i386`).
 
+**Fonts:** the image pre-accepts the MS Core Fonts EULA and installs **`ttf-mscorefonts-installer`** (Arial, Times New Roman, Courier, etc.), plus metric-compatible **`fonts-croscore`** and **`fonts-liberation`**. They are registered in **fontconfig**; **Wine/Proton** and **Chromium** typically pick them up so CEF/launcher UIs look closer to a normal Windows/desktop setup.
+
 ## Run
 
 ```bash
@@ -15,6 +17,25 @@ In a terminal inside the desktop:
 ```bash
 umu-run --help
 ```
+
+### Time zone (Gameforge / Wine)
+
+[docker-compose.yml](docker-compose.yml) uses **`TZ=Europe/Warsaw`** so the whole container (and **Wine/Proton** via the `TZ` variable) uses Central European time. **`Etc/UTC`** often surfaces in apps as **Atlantic/Reykjavik**-style offsets. **`run-gameforge-client.sh`** and **`gameforge-autostart.sh`** set **`TZ="${GAMEFORGE_TZ:-${TZ:-Europe/Warsaw}}"`** so you can override with **`GAMEFORGE_TZ`** for Gameforge only. Recreate or restart the stack after changing `TZ`; an existing Wine prefix usually picks up the new zone on the next run.
+
+**Why the launcher might show `Europe/Budapest`:** **`Europe/Warsaw`** and **`Europe/Budapest`** follow the **same** CET/CEST rules today. Many stacks (ICU, Chromium, .NET) **canonicalize** equivalent IANA zones to **one display ID** — often Budapest — even when Linux `TZ` is Warsaw. If **wall-clock time** matches Poland, configuration is fine; only the **reported zone name** may differ.
+
+### Screen size (fingerprint / work area)
+
+Launchers often read **screen or viewport size**, not raw **1920×1080**. In Webtop, **XFCE** (panel ~24–32px) and **Windows** (pasek ~40–48px) subtract different amounts, so you can see e.g. **1920×1053** in the container vs **1920×1032** in a Windows browser — this is normal.
+
+You can **lock the Selkies / X11 resolution** with environment variables (see [LinuxServer Webtop](https://docs.linuxserver.io/images/docker-webtop/)):
+
+- **`SELKIES_MANUAL_WIDTH`** / **`SELKIES_MANUAL_HEIGHT`** — fixed session size (enables manual resolution mode).
+- **`MAX_RESOLUTION`** — same **WxH** as the manual size so the virtual framebuffer matches (recommended for X11 + GPU docs).
+
+**Heuristic:** if **`h_reported`** is what the app shows now and you want **`h_target`**, estimate panel height **`p ≈ H_virtual − h_reported`**, then set **`SELKIES_MANUAL_HEIGHT ≈ h_target + p`** and **`MAX_RESOLUTION=1920x…`** to the same **W×H**. [docker-compose.yml](docker-compose.yml) uses **`GAMEFORGE_XFCE_PANEL_SIZE=47`** for the XFCE panel (with **`1920×1080`** virtual height, work area below the panel is about **1033 px** tall). Selkies/video may still **round** dimensions; verify with **`xrandr`**.
+
+**XFCE panel:** **`gameforge-xfce-panel-autostart.sh`** reads **`GAMEFORGE_XFCE_PANEL_SIZE`** (absolute thickness in px for each panel that has `/size`). Unset or empty = no change.
 
 ### WebGL (Chromium in the remote desktop)
 
