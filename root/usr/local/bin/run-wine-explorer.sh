@@ -10,7 +10,7 @@ export GAMEID="${GAMEFORGE_GAMEID:-umu-default}"
 export STORE="${GAMEFORGE_STORE:-none}"
 export PROTONPATH="${PROTONPATH:-${GAMEFORGE_PROTONPATH:-}}"
 export PROTON_USE_WINED3D="${PROTON_USE_WINED3D:-1}"
-export TZ="${GAMEFORGE_TZ:-${TZ:-Europe/Warsaw}}"
+export TZ="${TZ:-Europe/Warsaw}"
 
 if [ -z "${DISPLAY:-}" ]; then
   for sock in /tmp/.X11-unix/X[0-9]*; do

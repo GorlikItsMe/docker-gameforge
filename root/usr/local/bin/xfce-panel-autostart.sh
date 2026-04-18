@@ -1,8 +1,7 @@
 #!/bin/bash
-# After XFCE starts: set panel thickness (xfconf) via GAMEFORGE_XFCE_PANEL_SIZE (px).
-# Applied to every panel-N that has /size (typical setups: one panel).
+# After XFCE starts: optional xfce4-panel /size (px); empty = no-op.
 
-SIZE="${GAMEFORGE_XFCE_PANEL_SIZE:-}"
+SIZE="${XFCE_PANEL_SIZE:-}"
 
 if [ -z "$SIZE" ]; then
   exit 0

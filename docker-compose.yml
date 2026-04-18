@@ -16,11 +16,10 @@ services:
       - SELKIES_MANUAL_WIDTH=1920
       - SELKIES_MANUAL_HEIGHT=1080
       - MAX_RESOLUTION=1920x1080
-      # XFCE panel thickness (px); see xfce-panel-autostart.sh
-      - GAMEFORGE_XFCE_PANEL_SIZE=47
+      # XFCE panel thickness (px); see xfce-panel-autostart.sh (reads XFCE_PANEL_SIZE)
+      - XFCE_PANEL_SIZE=47
       # Optional: download GameforgeInstaller.exe and run it with umu-run when XFCE starts
       - GAMEFORGE_AUTOSTART=true
-      - "GAMEFORGE_DOWNLOAD_URL=https://install.gameforge.com/download?download_id=7ec0f5a5-21a3-41c6-8b4d-df8831ead6a8&game_id=df8661d6-a76e-417f-82dc-9fada569615e&locale=pl"
       # Persistent Wine prefix and cached installer (under /config):
       # - GAMEFORGE_WINEPREFIX=/config/wine-gameforge
       # - GAMEFORGE_DIR=/config/gameforge

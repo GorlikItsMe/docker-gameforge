@@ -1,7 +1,14 @@
 # Remote desktop (Webtop / Selkies) + umu-launcher + Gameforge autostart helpers
 FROM lscr.io/linuxserver/webtop:debian-xfce
 
-ENV TITLE="Gameforge Client"
+ENV TITLE="Gameforge Client" \
+    TZ=Europe/Warsaw \
+    SELKIES_MANUAL_WIDTH=1920 \
+    SELKIES_MANUAL_HEIGHT=1080 \
+    MAX_RESOLUTION=1920x1080 \
+    XFCE_PANEL_SIZE=47 \
+    GAMEFORGE_DOWNLOAD_URL=https://install.gameforge.com/download?download_id=7ec0f5a5-21a3-41c6-8b4d-df8831ead6a8&game_id=df8661d6-a76e-417f-82dc-9fada569615e&locale=pl \
+    PROTON_USE_WINED3D=1
 
 USER root
 

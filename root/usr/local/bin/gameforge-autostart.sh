@@ -21,8 +21,8 @@ export PROTONPATH="${PROTONPATH:-${GAMEFORGE_PROTONPATH:-}}"
 # "Required Vulkan extension VK_KHR_surface not supported". WineD3D (OpenGL) avoids that.
 export PROTON_USE_WINED3D="${PROTON_USE_WINED3D:-1}"
 
-# IANA timezone for Wine/Proton during install (match Gameforge client; GAMEFORGE_TZ overrides TZ).
-export TZ="${GAMEFORGE_TZ:-${TZ:-Europe/Warsaw}}"
+# IANA timezone for Wine/Proton during install (inherits container TZ; default Europe/Warsaw).
+export TZ="${TZ:-Europe/Warsaw}"
 
 CLIENT_REL="${GAMEFORGE_CLIENT_EXE_RELPATH:-drive_c/Program Files (x86)/GameforgeClient/gfclient.exe}"
 CLIENT_EXE="$WINEPREFIX/$CLIENT_REL"
@@ -103,9 +103,9 @@ fi
 sleep 8
 
 # One-shot MS core fonts via winetricks using Proton's wine (same as umu-run), not /usr/bin/wine.
-# Stamped under GAMEFORGE_DIR. First session may skip if Proton not extracted yet — runs again after installer. Disable: GAMEFORGE_WINETRICKS_COREFONTS=false
+# Stamped under GAMEFORGE_DIR. First session may skip if Proton not extracted yet — runs again after installer. Disable: WINETRICKS_COREFONTS=false
 maybe_winetricks_corefonts() {
-  [ "${GAMEFORGE_WINETRICKS_COREFONTS:-true}" = "true" ] || return 0
+  [ "${WINETRICKS_COREFONTS:-true}" = "true" ] || return 0
   command -v winetricks >/dev/null 2>&1 || return 0
   # Do not run winetricks on an empty prefix: first Wine process was 32-bit helpers → prefix stays 32-bit-only
   # and umu-run then fails with "cannot support 64-bit applications". Defer until Proton created system.reg.

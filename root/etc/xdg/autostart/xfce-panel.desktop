@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
 Version=1.0
-Name=XFCE panel size tune
-Comment=Optional panel thickness from GAMEFORGE_XFCE_PANEL_SIZE (see docker-compose).
+Name=XFCE panel
+Comment=Session helper for XFCE panel layout.
 Exec=/usr/local/bin/xfce-panel-autostart.sh
 Icon=preferences-desktop-display
 Terminal=false

@@ -9,3 +9,7 @@ Thumbs.db
 # Logs
 logs/
 
+# Local compose overrides (optional second env_file)
+local.env
+.env
+

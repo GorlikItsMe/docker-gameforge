@@ -12,8 +12,8 @@ export STORE="${GAMEFORGE_STORE:-none}"
 export PROTONPATH="${PROTONPATH:-${GAMEFORGE_PROTONPATH:-}}"
 export PROTON_USE_WINED3D="${PROTON_USE_WINED3D:-1}"
 
-# IANA timezone for Wine/Proton + .NET/CEF (GAMEFORGE_TZ overrides container TZ).
-export TZ="${GAMEFORGE_TZ:-${TZ:-Europe/Warsaw}}"
+# IANA timezone for Wine/Proton + .NET/CEF (inherits container TZ; default Europe/Warsaw).
+export TZ="${TZ:-Europe/Warsaw}"
 
 if [ -z "${DISPLAY:-}" ]; then
   for sock in /tmp/.X11-unix/X[0-9]*; do
