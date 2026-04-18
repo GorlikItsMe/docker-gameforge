@@ -20,6 +20,8 @@ services:
       - XFCE_PANEL_SIZE=47
       # Optional: download GameforgeInstaller.exe and run it with umu-run when XFCE starts
       - GAMEFORGE_AUTOSTART=true
+      # Open an xfce4-terminal window tailing Desktop/gameforge-autostart.log (same file as autostart)
+      # - GAMEFORGE_AUTOSTART_CONSOLE=true
       # Persistent Wine prefix and cached installer (under /config):
       # - GAMEFORGE_WINEPREFIX=/config/wine-gameforge
       # - GAMEFORGE_DIR=/config/gameforge

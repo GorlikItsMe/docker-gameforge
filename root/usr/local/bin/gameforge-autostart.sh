@@ -2,6 +2,7 @@
 # XFCE autostart: if gfclient (or another known client exe) is already installed, launch it;
 # otherwise cache GameforgeInstaller.exe under /config and run the installer via umu-run.
 # Disable: GAMEFORGE_AUTOSTART=false.
+# Live log window on the desktop: GAMEFORGE_AUTOSTART_CONSOLE=true (tails $LOG).
 
 LOG=/config/Desktop/gameforge-autostart.log
 GAMEFORGE_DIR="${GAMEFORGE_DIR:-/config/gameforge}"
@@ -69,9 +70,25 @@ EOF
   chmod 755 "$shortcut"
 }
 
+maybe_open_autostart_console() {
+  [ "${GAMEFORGE_AUTOSTART_CONSOLE:-false}" = "true" ] || return 0
+  [ "${GAMEFORGE_AUTOSTART:-true}" = "true" ] || return 0
+  touch "$LOG" 2>/dev/null || true
+  if command -v xfce4-terminal >/dev/null 2>&1; then
+    xfce4-terminal --title="Gameforge autostart log" -x bash -c "tail -n 80 -f \"$LOG\"" &
+  elif command -v x-terminal-emulator >/dev/null 2>&1; then
+    x-terminal-emulator -e "tail -n 80 -f $LOG" &
+  else
+    return 0
+  fi
+  disown 2>/dev/null || true
+  sleep 0.5
+}
+
 mkdir -p "$GAMEFORGE_DIR" /config/Desktop 2>/dev/null || true
 update_gameforge_desktop_shortcut
 update_wine_explorer_desktop_shortcut
+maybe_open_autostart_console
 {
   echo "=== $(date -Iseconds) start ==="
   echo "GAMEFORGE_AUTOSTART=${GAMEFORGE_AUTOSTART:-} DISPLAY=${DISPLAY:-} TZ=${TZ:-} WINEPREFIX=$WINEPREFIX"
