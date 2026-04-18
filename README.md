@@ -45,9 +45,9 @@ For **hardware** WebGL, mount **`/dev/dri`** (see [docker-compose.yml](docker-co
 
 ### Autostart (Gameforge installer)
 
-**`/etc/xdg/autostart/*.desktop`** is only for **programs that start with the session** — XFCE does **not** copy those files onto the desktop as icons. Your home (and Desktop) live under **`/config`**, so a visible launcher is written to **`/config/Desktop/Gameforge Client.desktop`** once **`gfclient.exe`** exists (refreshed on each login).
+**`/etc/xdg/autostart/*.desktop`** is only for **programs that start with the session** — XFCE does **not** copy those files onto the desktop as icons. Your home (and Desktop) live under **`/config`**, so **`gameforge-autostart.sh`** refreshes **`/config/Desktop/Gameforge Client.desktop`** once **`gfclient.exe`** exists, and always writes **`/config/Desktop/Wine Explorer.desktop`** ( **`run-wine-explorer.sh`** → **`explorer.exe`** via **`umu-run`**).
 
-To start the client yourself: **`/usr/local/bin/run-gameforge-client.sh`** (same as double‑clicking **Gameforge Client** on the desktop). That script passes the same Chromium baseline flags as **`/etc/chromium.d/gameforge-webgl`** (`--disable-gpu-sandbox`, `--disable-dev-shm-usage`, `--ignore-gpu-blocklist`) to **`gfclient.exe`** for the embedded **CEF** UI. Disable with **`GAMEFORGE_CEF_CHROME_FLAGS=0`**. **Stdout/stderr** are appended to **`/config/Desktop/gameforge-client.log`** (override with **`GAMEFORGE_CLIENT_LOG`**); from a terminal, output is also shown (**`tee`**).
+To start the client yourself: **`/usr/local/bin/run-gameforge-client.sh`** (same as double‑clicking **Gameforge Client** on the desktop). **Wine Explorer:** **`/usr/local/bin/run-wine-explorer.sh`** (or the **Wine Explorer** icon). That script passes the same Chromium baseline flags as **`/etc/chromium.d/gameforge-webgl`** (`--disable-gpu-sandbox`, `--disable-dev-shm-usage`, `--ignore-gpu-blocklist`) to **`gfclient.exe`** for the embedded **CEF** UI. Disable with **`GAMEFORGE_CEF_CHROME_FLAGS=0`**. **Stdout/stderr** are appended to **`/config/Desktop/gameforge-client.log`** (override with **`GAMEFORGE_CLIENT_LOG`**); from a terminal, output is also shown (**`tee`**).
 
 XFCE loads **`/etc/xdg/autostart/gameforge-autostart.desktop`**, which runs **`/usr/local/bin/gameforge-autostart.sh`**. On each session start it:
 

@@ -42,10 +42,12 @@ COPY root/ /
 RUN sed -i 's/\r$//' \
       /usr/local/bin/gameforge-autostart.sh \
       /usr/local/bin/run-gameforge-client.sh \
+      /usr/local/bin/run-wine-explorer.sh \
       /usr/local/bin/gameforge-xfce-panel-autostart.sh \
       /etc/chromium.d/gameforge-webgl && \
     chmod +x /usr/local/bin/gameforge-autostart.sh \
       /usr/local/bin/run-gameforge-client.sh \
+      /usr/local/bin/run-wine-explorer.sh \
       /usr/local/bin/gameforge-xfce-panel-autostart.sh && \
     chmod 644 /etc/xdg/autostart/gameforge-autostart.desktop \
       /etc/xdg/autostart/gameforge-xfce-panel.desktop \

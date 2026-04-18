@@ -45,8 +45,29 @@ EOF
   chmod 755 "$shortcut"
 }
 
+update_wine_explorer_desktop_shortcut() {
+  local desk=/config/Desktop
+  local shortcut="$desk/Wine Explorer.desktop"
+  mkdir -p "$desk" 2>/dev/null || return 0
+  umask 022
+  cat >"$shortcut" << 'EOF'
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Wine Explorer
+Comment=Windows Explorer in the Wine prefix (umu-run)
+Exec=/usr/local/bin/run-wine-explorer.sh
+Icon=folder
+Terminal=false
+Categories=System;FileManager;
+StartupNotify=true
+EOF
+  chmod 755 "$shortcut"
+}
+
 mkdir -p "$GAMEFORGE_DIR" /config/Desktop 2>/dev/null || true
 update_gameforge_desktop_shortcut
+update_wine_explorer_desktop_shortcut
 {
   echo "=== $(date -Iseconds) start ==="
   echo "GAMEFORGE_AUTOSTART=${GAMEFORGE_AUTOSTART:-} DISPLAY=${DISPLAY:-} TZ=${TZ:-} WINEPREFIX=$WINEPREFIX"
