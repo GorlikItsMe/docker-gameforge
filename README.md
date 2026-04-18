@@ -92,7 +92,26 @@ If **`apparmor:unconfined`** is not supported on your host (rare), remove that l
 
 **Check on the server:** `docker info` and look for **User Namespace** / **userns** / **rootless** hints; see also `/etc/docker/daemon.json` for `"userns-remap"`.
 
-**Still failing after the above:** ensure `kernel.unprivileged_userns_clone=1` where applicable. On **SELinux-enforcing** hosts try **`security_opt: label:disable`**. **Kubernetes** or hardened hosts may need **`cap_add: [SYS_ADMIN]`** or, last resort, **`privileged: true`** for this workload only.
+**Still “setting up uid map: Permission denied”** (and **no** `userns-remap` on the daemon): on **Ubuntu 24.04+** the kernel/AppArmor stack often ships **`kernel.apparmor_restrict_unprivileged_userns=1`**, which blocks **bubblewrap** from creating the user namespace **pressure-vessel** needs. On the **host** (not inside the container) you can either:
+
+- **Preferred (narrower than privileged container):** allow unprivileged userns globally on the host, then restart Docker and recreate the stack:
+  ```bash
+  echo 'kernel.apparmor_restrict_unprivileged_userns=0' | sudo tee /etc/sysctl.d/60-apparmor-userns.conf
+  sudo sysctl -p /etc/sysctl.d/60-apparmor-userns.conf
+  ```
+  (Security tradeoff: any unprivileged process on the host can create user namespaces; understand before applying on shared servers.)
+
+- **Or** keep the default in [docker-compose.yml](docker-compose.yml): **`privileged: true`** on this service so `umu-run` works without changing host sysctl. That weakens Docker’s usual isolation for **this** container only.
+
+**Manual `docker exec` tests:** `docker exec` defaults to **root**. **`umu-run` refuses root** (*“This script should never be run as the root user”*). Run as the Webtop user (default **`abc`**, PUID **1000**):
+
+```bash
+docker exec -it -u abc remote-desktop bash -lc 'LD_PRELOAD= umu-run /config/gameforge/GameforgeInstaller.exe 2>&1 | tail -n 40'
+```
+
+(If you set **`CUSTOM_USER`**, use that name instead of **`abc`**.)
+
+**Other:** ensure `kernel.unprivileged_userns_clone=1` where applicable. **SELinux:** try **`security_opt: label:disable`**. **Kubernetes:** often needs **`privileged: true`** or a custom policy anyway.
 
 ## Compose
 
