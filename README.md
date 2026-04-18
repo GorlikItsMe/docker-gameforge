@@ -1,38 +1,38 @@
 # docker-gameforge
 
-Run Gameforge Client in Docker using Wine with browser-based VNC access.
+**Remote Linux desktop** in a browser via [LinuxServer Webtop](https://docs.linuxserver.io/images/docker-webtop/) (`debian-xfce`, **Selkies** / HTTPS UI), plus **[umu-launcher](https://github.com/Open-Wine-Components/umu-launcher)** from the official GitHub **Debian 13** packages (`umu-launcher` + `python3-umu-launcher`, provides `**umu-run`**). The image enables **i386** and installs the 32-bit Mesa libraries those packages require (`libgl1-mesa-dri:i386`, `libglx-mesa0:i386`).
+
+## Run
 
 ```bash
-docker pull ghcr.io/gorlikitsme/docker-gameforge:v0.1
+docker compose up --build
 ```
 
-## Quick Start
+Open **[https://localhost:3001/](https://localhost:3001/)** (accept the self-signed certificate warning).
+
+In a terminal inside the desktop:
 
 ```bash
-docker-compose up --build
+umu-run --help
 ```
 
-Then open: **http://localhost:6080**
+### Autostart (browser)
 
-> [!WARNING]  
-> NosTale dont work with this setup. Feel free to contribute to the project to add support for it.
+XFCE loads `**/etc/xdg/autostart/docker-browser-autostart.desktop**`. The script `**/usr/local/bin/docker-browser-autostart.sh**` honors `**BROWSER_AUTOSTART**` (see [docker-compose.yml](docker-compose.yml)), sets `**DISPLAY**` from the session if present or from the first `**/tmp/.X11-unix**` socket (Webtop often uses `**:1**`), otherwise `**:0**`. It appends a trace to `**/config/Desktop/browser-autostart.log**` (which backend ran, env snapshot).
 
-> [!WARNING]  
-> When you go to Library tab and click OGame program will freeze. Use carousel on home page to navigate to game you want.
+If nothing opens: read that log first, then `docker logs remote-desktop` (harmless **login1** / **X11-unix** noise in containers is normal). Rebuild the image after editing files under `**root/`** — bind-mounted `**/config**` does not replace image paths like `**/etc/xdg/autostart**`.
 
-## Requirements
+Running Windows games still requires a **Proton/UMU-Proton** build and correct `PROTONPATH` / `STEAM_COMPAT_DATA_PATH` (see upstream docs). This image only installs **umu** itself, not GE-Proton or Steam.
 
-- **Docker + Docker Compose**
+### Docker and pressure-vessel
 
-## Why? For what purpose this project was created?
+`umu-run` uses bubblewrap / user namespaces. In Docker you may need a looser seccomp profile (e.g. `security_opt: [seccomp:unconfined]`) or a custom profile — see [umu-launcher#156](https://github.com/Open-Wine-Components/umu-launcher/issues/156).
 
-1. Because I can
-2. I wanted to learn how to create docker image with VNC
-3. Had crazy idea to play Nostale in browser
+## Compose
+
+- `**/config`** — persistent home for user `abc`.
+- `**shm_size: 1gb`** — recommended by Webtop.
 
 ## License
 
 MIT
-
----
-**Disclaimer**: This project is not affiliated with Gameforge. Names and trademarks are the property of their respective owners.

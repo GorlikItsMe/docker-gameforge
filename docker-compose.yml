@@ -1,23 +1,27 @@
-
 services:
-  gameforge:
+  desktop:
     build:
       context: .
       dockerfile: Dockerfile
     image: docker-gameforge:latest
-    container_name: docker-gameforge
+    container_name: remote-desktop
     ports:
-      - "6080:6080"  # noVNC
-      - "5901:5901"  # VNC direct
-    volumes:
-      - ./logs:/app/logs
-      - wine-data:/root/.wine32
+      - "3001:3001"
     environment:
-      - VNC_SERVER=yes
-      - DISPLAY=:1
-    command: sleep infinity
-    stdin_open: true
-    tty: true
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      # Optional: open default browser when XFCE starts (see /etc/xdg/autostart in image)
+      - BROWSER_AUTOSTART=true
+      # Optional HTTP basic auth on a trusted LAN:
+      # - CUSTOM_USER=user
+      # - PASSWORD=changeme
+    volumes:
+      - config:/config
+    # umu-run / pressure-vessel may need this in Docker (see umu-launcher#156). Uncomment if bwrap fails:
+    # security_opt:
+    #   - seccomp:unconfined
+    shm_size: "1gb"
 
 volumes:
-  wine-data:
+  config:
