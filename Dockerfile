@@ -26,6 +26,7 @@ RUN \
     libvulkan1 \
     mesa-vulkan-drivers \
     ttf-mscorefonts-installer \
+    uidmap \
     wine \
     wine32 \
     winetricks \
@@ -59,4 +60,5 @@ RUN sed -i 's/\r$//' \
       /usr/local/bin/xfce-panel-autostart.sh && \
     chmod 644 /etc/xdg/autostart/gameforge-autostart.desktop \
       /etc/xdg/autostart/xfce-panel.desktop \
-      /etc/chromium.d/gameforge-webgl
+      /etc/chromium.d/gameforge-webgl && \
+    chmod +x /etc/cont-init.d/10-gameforge-subuid

@@ -1,0 +1,24 @@
+#!/bin/bash
+# pressure-vessel / bwrap calls newuidmap for the desktop user; without /etc/subuid + /etc/subgid
+# entries, bwrap fails with "setting up uid map: Permission denied" (even with Docker privileged).
+# Resolve the LinuxServer user name from PUID (CUSTOM_USER / abc, etc.).
+
+set -e
+PUID="${PUID:-1000}"
+APP_USER="$(getent passwd "$PUID" | cut -d: -f1)"
+if [ -z "$APP_USER" ]; then
+  echo "[gameforge-subuid] no passwd entry for PUID=$PUID, skipping"
+  exit 0
+fi
+
+append_range() {
+  local f=$1
+  if ! grep -qE "^${APP_USER}:" "$f" 2>/dev/null; then
+    echo "${APP_USER}:100000:65536" >>"$f"
+    echo "[gameforge-subuid] added ${APP_USER} range to $f"
+  fi
+}
+
+append_range /etc/subuid
+append_range /etc/subgid
+exit 0

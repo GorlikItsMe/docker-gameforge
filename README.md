@@ -92,16 +92,23 @@ If **`apparmor:unconfined`** is not supported on your host (rare), remove that l
 
 **Check on the server:** `docker info` and look for **User Namespace** / **userns** / **rootless** hints; see also `/etc/docker/daemon.json` for `"userns-remap"`.
 
-**Still “setting up uid map: Permission denied”** (and **no** `userns-remap` on the daemon): on **Ubuntu 24.04+** the kernel/AppArmor stack often ships **`kernel.apparmor_restrict_unprivileged_userns=1`**, which blocks **bubblewrap** from creating the user namespace **pressure-vessel** needs. On the **host** (not inside the container) you can either:
+4. **`/etc/subuid` + `/etc/subgid` + `uidmap`** — Another common cause of *“bwrap: **setting up uid map: Permission denied**”* (even with **`privileged: true`**) is missing **subordinate UID/GID** ranges for the **desktop user** (`abc` / **`CUSTOM_USER`**, from **`PUID`**). **pressure-vessel** invokes **`newuidmap`**, which refuses if there is no matching line in **`/etc/subuid`**. This image installs the **`uidmap`** package and a LinuxServer **`/etc/cont-init.d/10-gameforge-subuid`** script that appends **`username:100000:65536`** to **`/etc/subuid`** and **`/etc/subgid`** on container start when missing. **Rebuild the image** (`docker compose build --no-cache`) after pulling.
 
-- **Preferred (narrower than privileged container):** allow unprivileged userns globally on the host, then restart Docker and recreate the stack:
-  ```bash
-  echo 'kernel.apparmor_restrict_unprivileged_userns=0' | sudo tee /etc/sysctl.d/60-apparmor-userns.conf
-  sudo sysctl -p /etc/sysctl.d/60-apparmor-userns.conf
-  ```
-  (Security tradeoff: any unprivileged process on the host can create user namespaces; understand before applying on shared servers.)
+   Quick check **inside** the container: `docker exec remote-desktop cat /etc/subuid` should list your user (e.g. **`abc:100000:65536`**), and `ls -la /usr/bin/newuidmap` should show **setuid** (`s` bit).
 
-- **Or** keep the default in [docker-compose.yml](docker-compose.yml): **`privileged: true`** on this service so `umu-run` works without changing host sysctl. That weakens Docker’s usual isolation for **this** container only.
+**Still “setting up uid map” after a rebuild:** on **Ubuntu 24.04+** the host may enforce **`kernel.apparmor_restrict_unprivileged_userns=1`**, which can still block **bubblewrap** for unprivileged users. On the **host**:
+
+```bash
+sysctl kernel.apparmor_restrict_unprivileged_userns
+# if it prints 1:
+echo 'kernel.apparmor_restrict_unprivileged_userns=0' | sudo tee /etc/sysctl.d/60-apparmor-userns.conf
+sudo sysctl -p /etc/sysctl.d/60-apparmor-userns.conf
+sudo systemctl restart docker
+```
+
+(Security tradeoff: relaxes a host-wide hardening knob; avoid on untrusted multi-tenant servers.)
+
+[docker-compose.yml](docker-compose.yml) also sets **`privileged: true`** as a broad Docker-side relaxation for **this** service; it does **not** replace **`/etc/subuid`** or the host sysctl above when those are the limiting factor.
 
 **Manual `docker exec` tests:** `docker exec` defaults to **root**. **`umu-run` refuses root** (*“This script should never be run as the root user”*). Run as the Webtop user (default **`abc`**, PUID **1000**):
 
