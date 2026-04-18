@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Gameforge installer (autostart)
+Comment=Downloads GameforgeInstaller.exe if needed and runs it with umu-run. Set GAMEFORGE_AUTOSTART=false to skip. Log: Desktop/gameforge-autostart.log under /config.
+Exec=/usr/local/bin/gameforge-autostart.sh
+Icon=applications-games
+Terminal=false
+Categories=Game;
+Hidden=false
+X-GNOME-Autostart-enabled=true
+StartupNotify=false

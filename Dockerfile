@@ -1,4 +1,4 @@
-# Browser remote desktop (Webtop / Selkies) + umu-launcher
+# Remote desktop (Webtop / Selkies) + umu-launcher + Gameforge autostart helpers
 FROM lscr.io/linuxserver/webtop:debian-xfce
 
 ENV TITLE="Remote desktop"
@@ -26,8 +26,8 @@ RUN \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
-# Optional browser autostart via /etc/xdg/autostart (.desktop must not be executable). Strip CRLF for Windows checkouts.
+# Gameforge installer autostart via /etc/xdg/autostart (.desktop must not be executable). Strip CRLF for Windows checkouts.
 COPY root/ /
-RUN sed -i 's/\r$//' /usr/local/bin/docker-browser-autostart.sh && \
-    chmod +x /usr/local/bin/docker-browser-autostart.sh && \
-    chmod 644 /etc/xdg/autostart/docker-browser-autostart.desktop
+RUN sed -i 's/\r$//' /usr/local/bin/gameforge-autostart.sh /usr/local/bin/run-gameforge-client.sh && \
+    chmod +x /usr/local/bin/gameforge-autostart.sh /usr/local/bin/run-gameforge-client.sh && \
+    chmod 644 /etc/xdg/autostart/gameforge-autostart.desktop
