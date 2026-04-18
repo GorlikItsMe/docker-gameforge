@@ -12,6 +12,7 @@ WINEPREFIX="${GAMEFORGE_WINEPREFIX:-/config/wine-gameforge}"
 export WINEPREFIX
 export GAMEID="${GAMEFORGE_GAMEID:-umu-default}"
 export STORE="${GAMEFORGE_STORE:-none}"
+[ -n "${GAMEFORGE_PROTONPATH:-}" ] && export PROTONPATH="$GAMEFORGE_PROTONPATH"
 
 # DXVK needs Vulkan with VK_KHR_surface; Selkies/Xvfb often expose no usable WSI — installer UI dies with
 # "Required Vulkan extension VK_KHR_surface not supported". WineD3D (OpenGL) avoids that.
@@ -98,14 +99,21 @@ fi
 
 sleep 8
 
-# One-shot MS core fonts for Wine (Arial etc.); stamped under GAMEFORGE_DIR. Needs network first run. Disable: GAMEFORGE_WINETRICKS_COREFONTS=false
+# One-shot MS core fonts via winetricks using Proton's wine (same as umu-run), not /usr/bin/wine.
+# Stamped under GAMEFORGE_DIR. First session may skip if Proton not extracted yet — runs again after installer. Disable: GAMEFORGE_WINETRICKS_COREFONTS=false
 maybe_winetricks_corefonts() {
   [ "${GAMEFORGE_WINETRICKS_COREFONTS:-true}" = "true" ] || return 0
   command -v winetricks >/dev/null 2>&1 || return 0
   local stamp="$GAMEFORGE_DIR/.winetricks-corefonts.done"
   [ -f "$stamp" ] && return 0
-  echo "winetricks -q corefonts (one-time; see $stamp)" >>"$LOG" 2>/dev/null || true
-  if winetricks -q corefonts >>"$LOG" 2>&1; then
+  local proton_wine
+  proton_wine="$(/usr/local/bin/resolve-proton-wine.sh 2>/dev/null)" || {
+    echo "winetricks corefonts: Proton wine not found yet (~/.local/share/umu or PROTONPATH); will retry" >>"$LOG" 2>/dev/null || true
+    return 0
+  }
+  echo "winetricks -q corefonts WINE=$proton_wine (one-time; see $stamp)" >>"$LOG" 2>/dev/null || true
+  # Clear Selkies 64-bit LD_PRELOAD so 32-bit wine/regedit from winetricks does not spam ELFCLASS64.
+  if ( export WINE="$proton_wine"; export LD_PRELOAD=; winetricks -q corefonts >>"$LOG" 2>&1 ); then
     touch "$stamp"
     echo "winetricks corefonts finished" >>"$LOG" 2>/dev/null || true
   else
@@ -171,4 +179,8 @@ if client="$(find_client)" && [ -n "$client" ]; then
 else
   echo "after run: no client exe matched yet (complete the wizard or check log)" >>"$LOG" 2>/dev/null || true
 fi
+
+# First login often has no Proton tree until umu-run above — retry corefonts now that UMU may have unpacked it.
+maybe_winetricks_corefonts
+
 exit 0

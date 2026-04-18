@@ -16,7 +16,7 @@ services:
       - SELKIES_MANUAL_WIDTH=1920
       - SELKIES_MANUAL_HEIGHT=1080
       - MAX_RESOLUTION=1920x1080
-      # XFCE panel thickness (px); see gameforge-xfce-panel-autostart.sh
+      # XFCE panel thickness (px); see xfce-panel-autostart.sh
       - GAMEFORGE_XFCE_PANEL_SIZE=47
       # Optional: download GameforgeInstaller.exe and run it with umu-run when XFCE starts
       - GAMEFORGE_AUTOSTART=true
@@ -31,7 +31,8 @@ services:
       - PROTON_USE_WINED3D=1
       # CEF/Chromium flags for gfclient (same idea as /etc/chromium.d/gameforge-webgl); set GAMEFORGE_CEF_CHROME_FLAGS=0 to disable
       # Client log on Desktop: /config/Desktop/gameforge-client.log (GAMEFORGE_CLIENT_LOG to override)
-      # Optional umu overrides: GAMEFORGE_GAMEID, GAMEFORGE_STORE, PROTONPATH (e.g. GE-Proton)
+      # Optional umu overrides: GAMEFORGE_GAMEID, GAMEFORGE_STORE, PROTONPATH (e.g. GE-Proton). winetricks uses the same PROTONPATH / ~/.local/share/umu resolution.
+      # - GAMEFORGE_PROTONPATH=/path/to/GE-Proton-XX  (optional; sets PROTONPATH for autostart + run-winetricks.sh)
       # Optional HTTP basic auth on a trusted LAN:
       # - CUSTOM_USER=user
       # - PASSWORD=changeme

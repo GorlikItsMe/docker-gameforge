@@ -6,9 +6,11 @@
 
 ### Winetricks (Wine prefix)
 
-The image installs **`wine`**, **`wine32`** (32-bit WoW64 support — **winetricks** `corefonts` runs **`syswow64\\regedit`**), and **`winetricks`**. **`gameforge-autostart.sh`** runs **`winetricks -q corefonts`** **once** (needs network the first time), then creates **`GAMEFORGE_DIR/.winetricks-corefonts.done`** (default **`/config/gameforge/.winetricks-corefonts.done`**). To skip: **`GAMEFORGE_WINETRICKS_COREFONTS=false`**. To retry: delete that stamp file.
+The image installs **`wine`**, **`wine32`**, and **`winetricks`**. **Do not** run winetricks against a Proton prefix with **`/usr/bin/wine`** — that mixes Wine builds. Here, **`gameforge-autostart.sh`** and **`run-winetricks.sh`** set **`WINE`** to **Proton’s `files/bin/wine`** (resolved by **`resolve-proton-wine.sh`**: absolute **`PROTONPATH`**, else newest **`*/files/bin/wine`** under **`~/.local/share/umu`** or **`~/.local/share/Steam/compatibilitytools.d`**). If Proton is not on disk yet, corefonts is skipped until the next session (or the second pass in autostart after **`umu-run`** on the installer).
 
-Manual runs: **`/usr/local/bin/run-winetricks.sh`** (same **`WINEPREFIX`** defaults; override with **`GAMEFORGE_WINEPREFIX`**), e.g. **`run-winetricks.sh --gui`**.
+**`gameforge-autostart.sh`** runs **`winetricks -q corefonts`** **once** (needs network the first time), then creates **`GAMEFORGE_DIR/.winetricks-corefonts.done`**. To skip: **`GAMEFORGE_WINETRICKS_COREFONTS=false`**. To retry: delete that stamp file.
+
+Manual runs: **`/usr/local/bin/run-winetricks.sh`** (same **`WINEPREFIX`** / **`GAMEID`** / **`STORE`** / **`PROTONPATH`** as **`umu-run`**; override prefix with **`GAMEFORGE_WINEPREFIX`**, optional **`GAMEFORGE_PROTONPATH`**), e.g. **`run-winetricks.sh --gui`**.
 
 **Winetricks** does not ship a verb for **Segoe UI Emoji**; **`corefonts`** covers the usual MS web fonts (Arial, Times, Courier, …) inside the prefix. Color emoji on the **Linux** desktop still comes from **`fonts-noto-color-emoji`**. If a **Wine** app still shows emoji boxes, it is usually asking for a Windows emoji font — that is outside what **`corefonts`** provides.
 
@@ -43,7 +45,7 @@ You can **lock the Selkies / X11 resolution** with environment variables (see [L
 
 **Heuristic:** if **`h_reported`** is what the app shows now and you want **`h_target`**, estimate panel height **`p ≈ H_virtual − h_reported`**, then set **`SELKIES_MANUAL_HEIGHT ≈ h_target + p`** and **`MAX_RESOLUTION=1920x…`** to the same **W×H**. [docker-compose.yml](docker-compose.yml) uses **`GAMEFORGE_XFCE_PANEL_SIZE=47`** for the XFCE panel (with **`1920×1080`** virtual height, work area below the panel is about **1033 px** tall). Selkies/video may still **round** dimensions; verify with **`xrandr`**.
 
-**XFCE panel:** **`gameforge-xfce-panel-autostart.sh`** reads **`GAMEFORGE_XFCE_PANEL_SIZE`** (absolute thickness in px for each panel that has `/size`). Unset or empty = no change.
+**XFCE panel:** **`/etc/xdg/autostart/xfce-panel.desktop`** runs **`xfce-panel-autostart.sh`**, which reads **`GAMEFORGE_XFCE_PANEL_SIZE`** (absolute thickness in px for each panel that has `/size`). Unset or empty = no change.
 
 ### WebGL (Chromium in the remote desktop)
 
@@ -60,7 +62,7 @@ To start the client yourself: **`/usr/local/bin/run-gameforge-client.sh`** (same
 XFCE loads **`/etc/xdg/autostart/gameforge-autostart.desktop`**, which runs **`/usr/local/bin/gameforge-autostart.sh`**. On each session start it:
 
 1. Skips if **`GAMEFORGE_AUTOSTART`** is not `true` (see [docker-compose.yml](docker-compose.yml)).
-2. Runs **`winetricks -q corefonts`** once until **`GAMEFORGE_DIR/.winetricks-corefonts.done`** exists (unless **`GAMEFORGE_WINETRICKS_COREFONTS=false`**). See **Winetricks** above.
+2. Runs **`winetricks -q corefonts`** once until **`GAMEFORGE_DIR/.winetricks-corefonts.done`** exists (unless **`GAMEFORGE_WINETRICKS_COREFONTS=false`**), using **Proton’s `wine`** only — see **Winetricks** above.
 3. If **`gfclient.exe`** (or another known client name) already exists under the Wine prefix — starts **`run-gameforge-client.sh`** in the background instead of the installer.
 4. Otherwise downloads **`GameforgeInstaller.exe`** (default URL from compose; override with **`GAMEFORGE_DOWNLOAD_URL`**) into **`GAMEFORGE_DIR`** (default **`/config/gameforge`**) and runs **`umu-run`** on it.
 
