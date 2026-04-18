@@ -42,10 +42,14 @@ services:
     # Optional: host GPU for Chromium WebGL / desktop GL (Linux). See LinuxServer webtop GPU docs.
     # devices:
     #   - /dev/dri:/dev/dri
-    # Required for umu-run / pressure-vessel (bubblewrap): default Docker seccomp blocks user namespaces.
+    # Required for umu-run / pressure-vessel (bubblewrap):
+    # - seccomp: default profile blocks user-namespace syscalls ("No permissions to create a new namespace").
+    # - apparmor: on Ubuntu/Debian hosts, docker-default AppArmor often blocks bwrap mount propagation
+    #   ("Failed to make / slave: Permission denied") — see README "Docker and pressure-vessel".
     # See https://github.com/Open-Wine-Components/umu-launcher/issues/156
     security_opt:
       - seccomp:unconfined
+      - apparmor:unconfined
     shm_size: "1gb"
 
 volumes:

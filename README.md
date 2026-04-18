@@ -78,9 +78,17 @@ See [umu-launcher](https://github.com/Open-Wine-Components/umu-launcher) for **`
 
 ### Docker and pressure-vessel
 
-`umu-run` uses bubblewrap (**bwrap**) and **user namespaces**. Docker’s default seccomp profile blocks that, which shows up as *“bwrap: No permissions to create a new namespace”*. [docker-compose.yml](docker-compose.yml) sets **`security_opt: seccomp:unconfined`** so the installer and games can run — see [umu-launcher#156](https://github.com/Open-Wine-Components/umu-launcher/issues/156).
+`umu-run` uses **bubblewrap** (`bwrap`) and **user namespaces** via Steam’s **pressure-vessel** sandbox.
 
-On some hosts you may also need **`kernel.unprivileged_userns_clone=1`** (Linux) if the error persists outside seccomp; Docker Desktop / WSL2 usually only needs the compose change above.
+[docker-compose.yml](docker-compose.yml) sets two `security_opt` entries:
+
+1. **`seccomp:unconfined`** — Docker’s default seccomp profile otherwise blocks the syscalls needed for nested namespaces. Symptom: *“bwrap: No permissions to create a new namespace”*. See [umu-launcher#156](https://github.com/Open-Wine-Components/umu-launcher/issues/156).
+
+2. **`apparmor:unconfined`** — On many **Ubuntu/Debian** servers, the **`docker-default`** AppArmor profile still blocks mount propagation inside the container. Symptom: *“bwrap: Failed to make / slave: Permission denied”* from `pressure-vessel-wrap`. Disabling AppArmor confinement for **this** container fixes that without turning off AppArmor on the whole host.
+
+If **`apparmor:unconfined`** is not supported on your host (rare), remove that line from compose or override it in a local override file.
+
+**Still failing:** ensure user namespaces are allowed (`kernel.unprivileged_userns_clone=1` on Linux where your distro documents it). On **SELinux-enforcing** hosts you may need **`security_opt: label:disable`** for the service (narrower than disabling SELinux globally). **Kubernetes** or other restricted runtimes may require a custom seccomp/AppArmor profile or, as a last resort, **`privileged: true`** for this workload only.
 
 ## Compose
 
