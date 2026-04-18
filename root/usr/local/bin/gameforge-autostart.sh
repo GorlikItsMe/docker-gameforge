@@ -12,7 +12,8 @@ WINEPREFIX="${GAMEFORGE_WINEPREFIX:-/config/wine-gameforge}"
 export WINEPREFIX
 export GAMEID="${GAMEFORGE_GAMEID:-umu-default}"
 export STORE="${GAMEFORGE_STORE:-none}"
-[ -n "${GAMEFORGE_PROTONPATH:-}" ] && export PROTONPATH="$GAMEFORGE_PROTONPATH"
+# umu-run uses PROTONPATH; prefer an explicit PROTONPATH over GAMEFORGE_PROTONPATH when both are set.
+export PROTONPATH="${PROTONPATH:-${GAMEFORGE_PROTONPATH:-}}"
 
 # DXVK needs Vulkan with VK_KHR_surface; Selkies/Xvfb often expose no usable WSI — installer UI dies with
 # "Required Vulkan extension VK_KHR_surface not supported". WineD3D (OpenGL) avoids that.
@@ -129,7 +130,7 @@ find_client() {
     -iname 'GameforgeClient.exe' -o \
     -iname 'gfclient*.exe' -o \
     -iname '*Gameforge*Launcher*.exe' \
-  \) 2>/dev/null | head -1
+  \) 2>/dev/null | LC_ALL=C sort | head -1
 }
 
 # Prefer the configured default path; fall back to a search under drive_c.

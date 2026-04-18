@@ -10,7 +10,7 @@ export WINEPREFIX
 # Inherit GAMEID / STORE / PROTONPATH from the environment so resolution matches umu-run (compose).
 export GAMEID="${GAMEFORGE_GAMEID:-${GAMEID:-umu-default}}"
 export STORE="${GAMEFORGE_STORE:-${STORE:-none}}"
-[ -n "${GAMEFORGE_PROTONPATH:-}" ] && export PROTONPATH="$GAMEFORGE_PROTONPATH"
+export PROTONPATH="${PROTONPATH:-${GAMEFORGE_PROTONPATH:-}}"
 
 if [ -z "${DISPLAY:-}" ]; then
   for sock in /tmp/.X11-unix/X[0-9]*; do

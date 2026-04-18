@@ -8,6 +8,7 @@ CLIENT_REL="${GAMEFORGE_CLIENT_EXE_RELPATH:-drive_c/Program Files (x86)/Gameforg
 export WINEPREFIX
 export GAMEID="${GAMEFORGE_GAMEID:-umu-default}"
 export STORE="${GAMEFORGE_STORE:-none}"
+export PROTONPATH="${PROTONPATH:-${GAMEFORGE_PROTONPATH:-}}"
 export PROTON_USE_WINED3D="${PROTON_USE_WINED3D:-1}"
 
 # IANA timezone for Wine/Proton + .NET/CEF (GAMEFORGE_TZ overrides container TZ).

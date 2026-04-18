@@ -7,6 +7,7 @@ EXPLORER="$WINEPREFIX/drive_c/windows/explorer.exe"
 export WINEPREFIX
 export GAMEID="${GAMEFORGE_GAMEID:-umu-default}"
 export STORE="${GAMEFORGE_STORE:-none}"
+export PROTONPATH="${PROTONPATH:-${GAMEFORGE_PROTONPATH:-}}"
 export PROTON_USE_WINED3D="${PROTON_USE_WINED3D:-1}"
 export TZ="${GAMEFORGE_TZ:-${TZ:-Europe/Warsaw}}"
 
